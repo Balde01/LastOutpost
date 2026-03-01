@@ -1,0 +1,113 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+'==================
+' CORE SYSTEMS
+'==================
+
+class GameManager {
+  - state: GameState
+  + SetState(state: GameState)
+  + Win()
+  + Lose()
+}
+
+enum GameState {
+  Playing
+  Victory
+  Defeat
+}
+
+class WaveManager {
+  - currentWave: int
+  + StartWaves()
+  + SpawnWave()
+}
+
+class EnemyManager {
+  + AssignTargets()
+}
+
+class ResourceManager {
+  - resources: int
+  + Add(amount: int)
+  + Spend(amount: int): bool
+  + OnResourceChanged()
+}
+
+'==================
+' PLAYER
+'==================
+
+class PlayerController {
+  + Move()
+}
+
+class FpsCamera {
+  + Look()
+}
+
+class Health {
+  - currentHP: int
+  + TakeDamage(amount: int)
+  + IsDead(): bool
+}
+
+interface IDamageable {
+  + TakeDamage(amount: int)
+}
+
+'==================
+' GUN SYSTEM
+'==================
+
+abstract class Gun {
+  # ammo: int
+  # fireRate: float
+  + Shoot()
+  + Reload()
+}
+
+class RifleGun
+class ShotgunGun
+class GrenadeLauncherGun
+
+Gun <|-- RifleGun
+Gun <|-- ShotgunGun
+Gun <|-- GrenadeLauncherGun
+
+'==================
+' ENEMY SYSTEM
+'==================
+
+abstract class Enemy {
+  # health: Health
+  + Move()
+  + Attack()
+  + Die()
+}
+
+class MeleeEnemy
+class RangedEnemy
+class SpecialEnemy
+
+Enemy <|-- MeleeEnemy
+Enemy <|-- RangedEnemy
+Enemy <|-- SpecialEnemy
+
+Enemy ..|> IDamageable
+Health ..|> IDamageable
+
+'==================
+' RELATIONS
+'==================
+
+GameManager --> WaveManager
+GameManager --> ResourceManager
+WaveManager --> Enemy
+EnemyManager --> Enemy
+PlayerController --> Gun
+Enemy --> Health
+PlayerController --> Health
+
+@enduml
