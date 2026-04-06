@@ -2,7 +2,7 @@
 
 3D First-Person Defense Game built with Unity.
 
-## 🎯 Project Overview
+## Project Overview
 
 This project is a final synthesis assignment for a Game Development course.
 
@@ -13,7 +13,7 @@ The player loses if:
 - Player health reaches 0
 - Enemies reach and destroy the central core
 
-## 📜 Requirements Covered
+## Requirements Covered
 
 - 3 Enemy types (Inheritance from Enemy)
 - 3 Gun types (Inheritance from Gun)
@@ -47,7 +47,7 @@ See documentation in `/docs`:
 - Requirements analysis
 - Architecture breakdown
 
-## 🚀 Development Roadmap
+## Development Roadmap
 
 Phase 0 – Analysis & UML  
 Phase 1 – Unity Setup & Scene  
