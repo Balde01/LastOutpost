@@ -10,9 +10,12 @@ class GameManager {
   + SetState(state: GameState)
   + Win()
   + Lose()
+  + StartIntro()
 }
 
 enum GameState {
+  Boot
+  Intro
   Playing
   Victory
   Defeat
@@ -35,12 +38,32 @@ class ResourceManager {
   + OnResourceChanged()
 }
 
+class IntroManager {
+  + StartIntro()
+  + SkipIntro()
+  + EndIntro()
+}
+
+class IntroUI {
+  + ShowTitle()
+  + ShowBriefingText()
+  + HideIntro()
+}
+
+class AudioManager {
+  + PlayBriefing()
+  + PlayAlarm()
+  + StopBriefing()
+}
+
 '==================
 ' PLAYER
 '==================
 
 class PlayerController {
   + Move()
+  + EnableInput()
+  + DisableInput()
 }
 
 class FpsCamera {
@@ -68,11 +91,11 @@ abstract class Gun {
   + Reload()
 }
 
-class RifleGun
+class PistolGun
 class ShotgunGun
 class GrenadeLauncherGun
 
-Gun <|-- RifleGun
+Gun <|-- PistolGun
 Gun <|-- ShotgunGun
 Gun <|-- GrenadeLauncherGun
 
@@ -104,6 +127,11 @@ Health ..|> IDamageable
 
 GameManager --> WaveManager
 GameManager --> ResourceManager
+GameManager --> IntroManager
+IntroManager --> IntroUI
+IntroManager --> AudioManager
+IntroManager --> PlayerController
+
 WaveManager --> Enemy
 EnemyManager --> Enemy
 PlayerController --> Gun

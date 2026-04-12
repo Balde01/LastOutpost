@@ -1,0 +1,20 @@
+@startuml
+actor Player
+participant GameManager
+participant IntroManager
+participant AudioManager
+participant IntroUI
+participant PlayerController
+
+Player -> GameManager: Launch scene
+GameManager -> IntroManager: StartIntro()
+IntroManager -> PlayerController: DisableInput()
+IntroManager -> AudioManager: PlayBriefing()
+IntroManager -> IntroUI: ShowIntroText()
+
+AudioManager --> IntroManager: BriefingFinished
+IntroManager -> IntroUI: HideIntroText()
+IntroManager -> PlayerController: EnableInput()
+IntroManager -> GameManager: SetState(Playing)
+
+@enduml

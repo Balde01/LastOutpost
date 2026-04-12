@@ -1,0 +1,16 @@
+@startuml
+
+[*] --> Boot
+Boot --> Intro : Scene loaded
+Intro --> Playing : Intro finished / skipped
+
+Playing --> Victory : Last wave cleared
+Playing --> Defeat : Player HP = 0
+Playing --> Defeat : Core destroyed
+
+Defeat --> Restart
+Restart --> Intro : Reload scene
+
+Victory --> [*]
+
+@enduml
