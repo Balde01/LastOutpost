@@ -93,7 +93,7 @@ public class IntroManager : MonoBehaviour
         yield return MoveAgentTo(_introNavMeshAgent, _introStartPosition.position, _introReturnNavigationSpeed, false);
         yield return MoveAgentTo(_gameNavMeshAgent, _introStartPosition.position, _gameNavMeshAgentSpeed, true);
 
-        yield return new WaitForSeconds(_postArrivalDelay);
+        //yield return new WaitForSeconds(_postArrivalDelay);
 
         TransitionToGameplay();
 
