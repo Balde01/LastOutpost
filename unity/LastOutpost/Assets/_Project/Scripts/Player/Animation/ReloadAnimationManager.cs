@@ -1,0 +1,40 @@
+using UnityEngine;
+
+public class ReloadAnimationManager : MonoBehaviour
+{
+    [SerializeField] private GameObject _ammunitionObject;
+    [SerializeField] private Animator _animator;
+    [SerializeField] private string _reloadAnimationTriggerName = "Reload";
+
+    private void Start()
+    {
+        if (_ammunitionObject == null)
+        {
+            Debug.LogError("[ReloadAnimationManager] Ammunition object reference is missing!");
+        }
+    }
+
+    public void ActiveAmmunition()
+    {
+        if (_ammunitionObject != null)
+        {
+            _ammunitionObject.SetActive(true);
+        }
+    }
+
+    public void DeactiveAmmunition()
+    {
+        if (_ammunitionObject != null)
+        {
+            _ammunitionObject.SetActive(false);
+        }
+    }
+
+    public void PlayReloadAnimation()
+    {
+        if (_animator != null)
+        {
+            _animator.SetTrigger(_reloadAnimationTriggerName);
+        }
+    }
+}
