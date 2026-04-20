@@ -10443,6 +10443,7 @@ MonoBehaviour:
   _ammunitionObject: {fileID: 40425911}
   _animator: {fileID: 40425913}
   _reloadAnimationTriggerName: Reload
+  _idleAnimationBoolName: Idle
 --- !u!95 &1818393709 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: c9026e6d40ea567449c84874026cab64, type: 3}
@@ -11486,7 +11487,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 7d4a0ba0af5e9204aa25a65c062be899, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
