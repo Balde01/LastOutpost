@@ -1,73 +1,137 @@
 using System;
 using System.Collections;
-using Unity.AI.Navigation;
+using NaughtyAttributes;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class IntroManager : MonoBehaviour
 {
-    [Header("Cinemachine")]
-    [SerializeField] private CinemachineCamera _cinemachineCamera;
-    [SerializeField] private CinemachineThirdPersonFollow _thirdPersonFollow;
+    [Foldout("References"), SerializeField] private CinemachineCamera _cinemachineCamera;
+    [Foldout("References"), SerializeField] private CinemachineThirdPersonFollow _thirdPersonFollow;
+    [Foldout("References"), SerializeField] private IntroUI _introUI;
+    [Foldout("References"), SerializeField] private AudioManager _audioManager;
+    [Foldout("References"), SerializeField] private MetroGate _metroGate;
 
-    [Header("Tracking Targets")]
-    [SerializeField] private Transform _introTrackingTarget;
-    [SerializeField] private Transform _gameTrackingTarget;
+    [Foldout("Tracking Targets"), SerializeField] private Transform _introTrackingTarget;
+    [Foldout("Tracking Targets"), SerializeField] private Transform _gameTrackingTarget;
+    [Foldout("Tracking Targets"), SerializeField] private Transform _zombieLaughShotPoint;
 
-    [Header("Intro Camera Settings")]
-    [SerializeField] private Vector3 _introShoulderOffset = new(0.5f, 1.5f, -0.5f);
-    [SerializeField] private float _introVerticalArmLength = 2f;
-    [SerializeField] private float _introCameraDistance = 3f;
+    [Foldout("Zombie"), SerializeField] private Animator _zombieType3Animator;
+    [Foldout("Zombie"), SerializeField] private string _zombieLaughTriggerName = "Laugh";
 
-    [Header("Gameplay Camera Settings")]
-    [SerializeField] private Vector3 _gameShoulderOffset = new(0.5f, 1.5f, -0.5f);
-    [SerializeField] private float _gameVerticalArmLength = 2f;
-    [SerializeField] private float _gameCameraDistance = 3f;
+    [Foldout("Agents"), SerializeField] private NavMeshAgent _introNavMeshAgent;
+    [Foldout("Agents"), SerializeField] private NavMeshAgent _gameNavMeshAgent;
 
-    [Header("Scene Systems")]
-    [SerializeField] private MetroGate _metroGate;
+    [Foldout("Player"), SerializeField] private Animator _playerAnimator;
+    [Foldout("Player"), SerializeField] private string _speedParameterName = "Speed";
 
-    [Header("Agents")]
-    [SerializeField] private NavMeshAgent _introNavMeshAgent;
-    [SerializeField] private NavMeshAgent _gameNavMeshAgent;
+    [Foldout("Positions"), SerializeField] private Transform _introStartPosition;
+    [Foldout("Positions"), SerializeField] private Transform _introEndPosition;
+    [Foldout("Positions"), SerializeField] private Transform _playerStartPosition;
+    [Foldout("Positions"), SerializeField] private Transform _playerEndPosition;
 
-    [Header("Player Settings")]
-    [SerializeField] private Animator _playerAnimator;
-    [SerializeField] private string _speedParameterName = "Speed";
+    [Foldout("Camera Intro"), SerializeField] private Vector3 _introShoulderOffset = new(0.5f, 1.5f, -0.5f);
+    [Foldout("Camera Intro"), SerializeField] private float _introVerticalArmLength = 2f;
+    [Foldout("Camera Intro"), SerializeField] private float _introCameraDistance = 3f;
 
-    [Header("Positions")]
-    [SerializeField] private Transform _introStartPosition;
-    [SerializeField] private Transform _introEndPosition;
-    [SerializeField] private Transform _playerStartPosition;
+    [Foldout("Camera Gameplay"), SerializeField] private Vector3 _gameShoulderOffset = new(0.5f, 1.5f, -0.5f);
+    [Foldout("Camera Gameplay"), SerializeField] private float _gameVerticalArmLength = 2f;
+    [Foldout("Camera Gameplay"), SerializeField] private float _gameCameraDistance = 3f;
 
-    [Header("Intro Timing")]
-    [SerializeField] private float _introNavigationSpeed = 3.5f;
-    [SerializeField] private float _introReturnNavigationSpeed = 5f;
-    [SerializeField] private float _gameNavMeshAgentSpeed = 3f;
-    [SerializeField] private float _arrivalThreshold = 0.15f;
-    [SerializeField] private float _postArrivalDelay = 0.5f;
+    [Foldout("Camera Laugh"), SerializeField] private Vector3 _laughShoulderOffset = new(0.2f, 1.2f, -0.3f);
+    [Foldout("Camera Laugh"), SerializeField] private float _laughVerticalArmLength = 1.4f;
+    [Foldout("Camera Laugh"), SerializeField] private float _laughCameraDistance = 2f;
+
+    [Foldout("Navigation"), SerializeField] private float _introNavigationSpeed = 3.5f;
+    [Foldout("Navigation"), SerializeField] private float _introReturnNavigationSpeed = 5f;
+    [Foldout("Navigation"), SerializeField] private float _gameNavMeshAgentSpeed = 3f;
+    [Foldout("Navigation"), SerializeField] private float _arrivalThreshold = 0.15f;
+    [Foldout("Navigation"), SerializeField] private float _postArrivalDelay = 0.5f;
+
+    [Foldout("Timeline"), SerializeField] private float _blackout1Start = 19f;
+    [Foldout("Timeline"), SerializeField] private float _blackout1Duration = 3f;
+
+    [Foldout("Timeline"), SerializeField] private float _blackout2Start = 23f;
+    [Foldout("Timeline"), SerializeField] private float _blackout2Duration = 2f;
+
+    [Foldout("Timeline"), SerializeField] private float _blackout3Start = 27f;
+    [Foldout("Timeline"), SerializeField] private float _blackout3Duration = 1f;
+
+    [Foldout("Timeline"), SerializeField] private float _blackout4Start = 32f;
+    [Foldout("Timeline"), SerializeField] private float _blackout4Duration = 3f;
+
+    [Foldout("Timeline"), SerializeField] private float _laughStart = 36f;
+    [Foldout("Timeline"), SerializeField] private float _laughDuration = 3f;
+
+    [Foldout("Effects"), SerializeField] private float _fadeDuration = 0.3f;
 
     private Action _onIntroComplete;
     private bool _isIntroRunning;
+    private bool _timelineEventsRunning;
+
+    private void OnEnable()
+    {
+        if (_introUI != null)
+        {
+            _introUI.OnIntroUIFinished += HandleIntroUIFinished;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (_introUI != null)
+        {
+            _introUI.OnIntroUIFinished -= HandleIntroUIFinished;
+        }
+    }
 
     private void Start()
     {
         CacheGameplayCameraSettings();
-        StartCoroutine(RunIntroSequence());
+    }
+
+    private bool ValidateReferences()
+    {
+        return ValidatorReferences.Validate(this,
+            (_cinemachineCamera, nameof(_cinemachineCamera)),
+            (_thirdPersonFollow, nameof(_thirdPersonFollow)),
+            (_introUI, nameof(_introUI)),
+            (_audioManager, nameof(_audioManager)),
+            (_introTrackingTarget, nameof(_introTrackingTarget)),
+            (_gameTrackingTarget, nameof(_gameTrackingTarget)),
+            (_zombieLaughShotPoint, nameof(_zombieLaughShotPoint)),
+            (_zombieType3Animator, nameof(_zombieType3Animator)),
+            (_introNavMeshAgent, nameof(_introNavMeshAgent)),
+            (_gameNavMeshAgent, nameof(_gameNavMeshAgent)),
+            (_playerAnimator, nameof(_playerAnimator)),
+            (_introStartPosition, nameof(_introStartPosition)),
+            (_introEndPosition, nameof(_introEndPosition)),
+            (_playerStartPosition, nameof(_playerStartPosition))
+        );
     }
 
     private void CacheGameplayCameraSettings()
     {
         if (_thirdPersonFollow == null)
         {
-            Debug.LogError("[IntroManager] CinemachineThirdPersonFollow is not assigned.");
+            Debug.LogError("[IntroManager] CinemachineThirdPersonFollow is not assigned.", this);
             return;
         }
 
         _gameCameraDistance = _thirdPersonFollow.CameraDistance;
         _gameShoulderOffset = _thirdPersonFollow.ShoulderOffset;
         _gameVerticalArmLength = _thirdPersonFollow.VerticalArmLength;
+    }
+
+    private void HandleIntroUIFinished()
+    {
+        if (_isIntroRunning)
+        {
+            return;
+        }
+
+        StartCoroutine(RunIntroSequence());
     }
 
     private IEnumerator RunIntroSequence()
@@ -78,6 +142,7 @@ public class IntroManager : MonoBehaviour
         }
 
         _isIntroRunning = true;
+        _timelineEventsRunning = true;
 
         SetupIntroCamera();
         PrepareIntroActor();
@@ -87,105 +152,108 @@ public class IntroManager : MonoBehaviour
         {
             _metroGate.OpenGate();
         }
+        StartCoroutine(FadeFromBlack(_fadeDuration));
+        StartCoroutine(RunTimelineEvents());
 
         yield return MoveAgentTo(_introNavMeshAgent, _introStartPosition.position, _introNavigationSpeed, false);
         yield return MoveAgentTo(_introNavMeshAgent, _introEndPosition.position, _introNavigationSpeed, false);
-        yield return MoveAgentTo(_introNavMeshAgent, _introStartPosition.position, _introReturnNavigationSpeed, false);
-        yield return MoveAgentTo(_gameNavMeshAgent, _introStartPosition.position, _gameNavMeshAgentSpeed, true);
+        yield return MoveAgentTo(_introNavMeshAgent, _playerEndPosition.position, _introReturnNavigationSpeed, false);
+        yield return MoveAgentTo(_gameNavMeshAgent, _playerEndPosition.position, _gameNavMeshAgentSpeed, true);
 
-        //yield return new WaitForSeconds(_postArrivalDelay);
+        _timelineEventsRunning = false;
+
+        yield return new WaitForSeconds(_postArrivalDelay);
 
         TransitionToGameplay();
 
         _isIntroRunning = false;
-        Debug.Log("[IntroManager] Intro sequence completed, transitioned to gameplay.");
+        Debug.Log("[IntroManager] Intro sequence completed, transitioned to gameplay.", this);
     }
 
-    private bool ValidateReferences()
+    private IEnumerator RunTimelineEvents()
     {
-        bool isValid = true;
+        yield return WaitUntilAudioTime(_blackout1Start);
+        if (_timelineEventsRunning) yield return PlayBlackoutOnly(_blackout1Duration);
 
-        if (_cinemachineCamera == null)
-        {
-            Debug.LogError("[IntroManager] CinemachineCamera is not assigned.");
-            isValid = false;
-        }
+        yield return WaitUntilAudioTime(_blackout2Start);
+        if (_timelineEventsRunning) yield return PlayBlackoutOnly(_blackout2Duration);
 
-        if (_thirdPersonFollow == null)
-        {
-            Debug.LogError("[IntroManager] CinemachineThirdPersonFollow is not assigned.");
-            isValid = false;
-        }
+        yield return WaitUntilAudioTime(_blackout3Start);
+        if (_timelineEventsRunning) yield return PlayBlackoutOnly(_blackout3Duration);
 
-        if (_introTrackingTarget == null)
-        {
-            Debug.LogError("[IntroManager] Intro tracking target is not assigned.");
-            isValid = false;
-        }
+        yield return WaitUntilAudioTime(_blackout4Start);
+        if (_timelineEventsRunning) yield return PlayBlackoutOnly(_blackout4Duration);
 
-        if (_gameTrackingTarget == null)
-        {
-            Debug.LogError("[IntroManager] Game tracking target is not assigned.");
-            isValid = false;
-        }
-
-        if (_introNavMeshAgent == null)
-        {
-            Debug.LogError("[IntroManager] Intro NavMeshAgent is not assigned.");
-            isValid = false;
-        }
-
-        if (_gameNavMeshAgent == null)
-        {
-            Debug.LogError("[IntroManager] Game NavMeshAgent is not assigned.");
-            isValid = false;
-        }
-
-        if (_introStartPosition == null)
-        {
-            Debug.LogError("[IntroManager] Intro start position is not assigned.");
-            isValid = false;
-        }
-
-        if (_introEndPosition == null)
-        {
-            Debug.LogError("[IntroManager] Intro end position is not assigned.");
-            isValid = false;
-        }
-
-        if (_playerStartPosition == null)
-        {
-            Debug.LogError("[IntroManager] Player start position is not assigned.");
-            isValid = false;
-        }
-
-        if (_playerAnimator == null)
-        {
-            Debug.LogError("[IntroManager] Player Animator is not assigned.");
-            isValid = false;
-        }
-
-        return isValid;
+        yield return WaitUntilAudioTime(_laughStart);
+        if (_timelineEventsRunning) yield return PlayLaughShot(_laughDuration);
     }
 
     private void SetupIntroCamera()
     {
-        _thirdPersonFollow.ShoulderOffset = _introShoulderOffset;
-        _thirdPersonFollow.VerticalArmLength = _introVerticalArmLength;
-        _thirdPersonFollow.CameraDistance = _introCameraDistance;
-
-        _cinemachineCamera.Follow = _introTrackingTarget;
-        _cinemachineCamera.LookAt = _introTrackingTarget;
+        ApplyCameraSettings(_introShoulderOffset, _introVerticalArmLength, _introCameraDistance);
+        Focus(_introTrackingTarget);
     }
 
     private void RestoreGameplayCamera()
     {
-        _thirdPersonFollow.ShoulderOffset = _gameShoulderOffset;
-        _thirdPersonFollow.VerticalArmLength = _gameVerticalArmLength;
-        _thirdPersonFollow.CameraDistance = _gameCameraDistance;
+        ApplyCameraSettings(_gameShoulderOffset, _gameVerticalArmLength, _gameCameraDistance);
+        Focus(_gameTrackingTarget);
+    }
 
-        _cinemachineCamera.Follow = _gameTrackingTarget;
-        _cinemachineCamera.LookAt = _gameTrackingTarget;
+    private void SetupLaughCamera()
+    {
+        ApplyCameraSettings(_laughShoulderOffset, _laughVerticalArmLength, _laughCameraDistance);
+        Focus(_zombieLaughShotPoint);
+    }
+
+    private void ApplyCameraSettings(Vector3 shoulderOffset, float verticalArmLength, float cameraDistance)
+    {
+        _thirdPersonFollow.ShoulderOffset = shoulderOffset;
+        _thirdPersonFollow.VerticalArmLength = verticalArmLength;
+        _thirdPersonFollow.CameraDistance = cameraDistance;
+    }
+
+    private void Focus(Transform target)
+    {
+        _cinemachineCamera.Follow = target;
+        _cinemachineCamera.LookAt = target;
+    }
+
+    private IEnumerator FadeFromBlack(float duration)
+    {
+        _introUI.FadeFromBlack(_fadeDuration);
+        yield return new WaitForSeconds(_fadeDuration);
+    }
+
+    private IEnumerator PlayBlackoutOnly(float duration)
+    {
+        _introUI.FadeToBlack(_fadeDuration);
+        yield return new WaitForSeconds(_fadeDuration);
+
+        yield return new WaitForSeconds(duration);
+
+        _introUI.FadeFromBlack(_fadeDuration);
+        yield return new WaitForSeconds(_fadeDuration);
+    }
+
+    private IEnumerator PlayLaughShot(float duration)
+    {
+        _introUI.FadeToBlack(_fadeDuration);
+        yield return new WaitForSeconds(_fadeDuration);
+
+        _zombieType3Animator.SetTrigger(_zombieLaughTriggerName);
+        SetupLaughCamera();
+
+        _introUI.FadeFromBlack(_fadeDuration);
+        yield return new WaitForSeconds(duration);
+
+        _introUI.FadeToBlack(_fadeDuration);
+        yield return new WaitForSeconds(_fadeDuration);
+
+        SetupIntroCamera();
+
+        _introUI.FadeFromBlack(_fadeDuration);
+        yield return new WaitForSeconds(_fadeDuration);
     }
 
     private void PrepareIntroActor()
@@ -228,7 +296,7 @@ public class IntroManager : MonoBehaviour
 
         if (!agent.isOnNavMesh)
         {
-            Debug.LogError($"[IntroManager] Agent {agent.name} is not on a NavMesh.");
+            Debug.LogError($"[IntroManager] Agent {agent.name} is not on a NavMesh.", this);
             yield break;
         }
 
@@ -267,6 +335,14 @@ public class IntroManager : MonoBehaviour
         }
     }
 
+    private IEnumerator WaitUntilAudioTime(float targetTime)
+    {
+        while (_audioManager.IsIntroPlaying() && _audioManager.GetIntroTime() < targetTime)
+        {
+            yield return null;
+        }
+    }
+
     private void TransitionToGameplay()
     {
         if (_introNavMeshAgent != null && _introNavMeshAgent.enabled)
@@ -280,6 +356,7 @@ public class IntroManager : MonoBehaviour
         {
             _gameNavMeshAgent.isStopped = true;
             _gameNavMeshAgent.ResetPath();
+            _gameNavMeshAgent.transform.LookAt(_introEndPosition);
         }
 
         if (_playerAnimator != null)
