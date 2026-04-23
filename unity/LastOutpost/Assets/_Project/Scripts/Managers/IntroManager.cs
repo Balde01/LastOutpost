@@ -382,4 +382,18 @@ public class IntroManager : MonoBehaviour
     {
         return _isIntroRunning;
     }
+
+    [Button("Skip Intro")]
+    public void SkipIntro()
+    {
+        if (!_isIntroRunning)
+        {
+            return;
+        }
+        _gameNavMeshAgent.Warp(_playerEndPosition.position);
+        StopAllCoroutines();
+        TransitionToGameplay();
+        _isIntroRunning = false;
+        Debug.Log("[IntroManager] Intro sequence skipped, transitioned to gameplay.", this);
+    }
 }

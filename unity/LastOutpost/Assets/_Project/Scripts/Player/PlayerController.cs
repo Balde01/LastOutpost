@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     [Foldout("References"), SerializeField] private Animator _animator;
 
     [Foldout("References"), SerializeField] private IntroManager _introManager;
+    [Foldout("References"), SerializeField] private FpsCamera _fpsCamera;
 
     [Foldout("Movement"), SerializeField] private float _moveSpeed = 4f;
 
@@ -26,7 +27,7 @@ public class PlayerController : MonoBehaviour
 
     private Vector3 _velocity;
 
-    private bool _inputEnabled;
+    private bool _playerMovementEnabled;
 
     private void Awake()
 
@@ -34,7 +35,7 @@ public class PlayerController : MonoBehaviour
 
         _characterController = GetComponent<CharacterController>();
 
-        _inputEnabled = false;
+        _playerMovementEnabled = false;
 
     }
 
@@ -46,7 +47,7 @@ public class PlayerController : MonoBehaviour
 
         {
 
-            _introManager.RegisterOnIntroComplete(EnableInput);
+            _introManager.RegisterOnIntroComplete(EnablePlayerMovement);
 
         }
 
@@ -60,7 +61,7 @@ public class PlayerController : MonoBehaviour
 
         {
 
-            _introManager.UnregisterOnIntroComplete(EnableInput);
+            _introManager.UnregisterOnIntroComplete(EnablePlayerMovement);
 
         }
 
@@ -80,7 +81,7 @@ public class PlayerController : MonoBehaviour
 
         }
 
-        DisableInput();
+        DisablePlayerMovement();
 
     }
 
@@ -88,7 +89,7 @@ public class PlayerController : MonoBehaviour
 
     {
 
-        if (!_inputEnabled)
+        if (!_playerMovementEnabled || _fpsCamera.IsInputEnabled())
 
         {
 
@@ -234,19 +235,19 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    public void EnableInput()
+    public void EnablePlayerMovement()
 
     {
         _characterController.enabled = true;
-        _inputEnabled = true;
+        _playerMovementEnabled = true;
 
     }
 
-    public void DisableInput()
+    public void DisablePlayerMovement()
 
     {
 
-        _inputEnabled = false;
+        _playerMovementEnabled = false;
         _characterController.enabled = false;
 
         //UpdateAnimatorSpeed(0f);

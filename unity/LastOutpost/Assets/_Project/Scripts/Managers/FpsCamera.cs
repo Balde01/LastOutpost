@@ -36,6 +36,8 @@ public class FpsCamera : MonoBehaviour
 
     [Foldout("Tween"), SerializeField] private float _cameraTweenDuration = 0.2f;
 
+    [Foldout("UI"), SerializeField, ReadOnly] private KeyCode _toggleMenuKey = KeyCode.Tab;
+
     private float _yaw;
 
     private float _pitch;
@@ -43,6 +45,8 @@ public class FpsCamera : MonoBehaviour
     private bool _isAiming;
 
     private bool _inputEnabled;
+
+    private bool _isMenuOpen;
 
     private LTDescr _cameraTween;
 
@@ -105,8 +109,8 @@ public class FpsCamera : MonoBehaviour
     private void Update()
 
     {
-
-        if (!_inputEnabled)
+        HanldeMenuToggleInput();
+        if (!_inputEnabled || _isMenuOpen)
 
         {
 
@@ -136,6 +140,36 @@ public class FpsCamera : MonoBehaviour
 
         );
 
+    }
+
+    private void HanldeMenuToggleInput()
+    {
+        if (Input.GetKeyDown(_toggleMenuKey))
+        {
+            if (_isMenuOpen)
+            {
+                CloseMenu();
+            }
+            else
+            {
+                OpenMenu();
+            }
+        }
+    }
+
+    private void OpenMenu()
+    {
+        _isMenuOpen = true;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        DisableInput();
+    }
+
+    private void CloseMenu()
+    {
+        _isMenuOpen = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     private void HandleAimInput()
@@ -196,7 +230,7 @@ public class FpsCamera : MonoBehaviour
 
         _playerRoot.rotation = Quaternion.Euler(0f, _yaw, 0f);
 
-        _pitchRoot.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
+        //_pitchRoot.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
 
     }
 
@@ -288,6 +322,11 @@ public class FpsCamera : MonoBehaviour
 
         return _isAiming;
 
+    }
+
+    public bool IsInputEnabled()
+    {
+        return _inputEnabled;
     }
 
 }
