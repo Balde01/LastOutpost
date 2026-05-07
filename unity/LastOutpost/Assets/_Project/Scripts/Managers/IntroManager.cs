@@ -140,7 +140,7 @@ public class IntroManager : MonoBehaviour
         {
             yield break;
         }
-
+        _introUI.ActiveSkipButton(true);
         _isIntroRunning = true;
         _timelineEventsRunning = true;
 
@@ -161,7 +161,7 @@ public class IntroManager : MonoBehaviour
         yield return MoveAgentTo(_gameNavMeshAgent, _playerEndPosition.position, _gameNavMeshAgentSpeed, true);
 
         _timelineEventsRunning = false;
-
+        _introUI.ActiveSkipButton(false);
         yield return new WaitForSeconds(_postArrivalDelay);
 
         TransitionToGameplay();
@@ -365,6 +365,7 @@ public class IntroManager : MonoBehaviour
         }
 
         RestoreGameplayCamera();
+        _introUI.ActiveHud(true);
         _onIntroComplete?.Invoke();
     }
 
@@ -392,7 +393,10 @@ public class IntroManager : MonoBehaviour
         }
         _gameNavMeshAgent.Warp(_playerEndPosition.position);
         StopAllCoroutines();
+        _introUI.ActiveSkipButton(false);
+        _introUI.FadeFromBlack(0f);
         TransitionToGameplay();
+        _introUI.ActiveHud(true);
         _isIntroRunning = false;
         Debug.Log("[IntroManager] Intro sequence skipped, transitioned to gameplay.", this);
     }

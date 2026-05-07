@@ -12,6 +12,8 @@ public class IntroUI : MonoBehaviour
     [Foldout("References"), SerializeField] private TextMeshProUGUI _initializingText;
     [Foldout("References"), SerializeField] private Image _initializingBackground;
     [Foldout("References"), SerializeField] private AudioManager _audioManager;
+    [Foldout("References"), SerializeField] private GameObject _hudCanvas;
+    [Foldout("References"), SerializeField] private Button _skipButton;
 
     [Foldout("Text"), SerializeField] private string _initializingMessage = "INITIALIZING...";
 
@@ -67,7 +69,9 @@ public class IntroUI : MonoBehaviour
             (_studioImage, nameof(_studioImage)),
             (_initializingText, nameof(_initializingText)),
             (_audioManager, nameof(_audioManager)),
-            (_initializingBackground, nameof(_initializingBackground))
+            (_initializingBackground, nameof(_initializingBackground)),
+            (_hudCanvas, nameof(_hudCanvas)),
+            (_skipButton, nameof(_skipButton))
         );
     }
 
@@ -88,6 +92,9 @@ public class IntroUI : MonoBehaviour
         {
             _initializingBackground.gameObject.SetActive(false);
         }
+
+        ActiveSkipButton(false);
+        ActiveHud(false);
 
         SetFadeAlpha(1f);
     }
@@ -124,6 +131,7 @@ public class IntroUI : MonoBehaviour
 
             if (currentTime >= _handoffBlackEndTime)
             {
+                
                 break;
             }
 
@@ -144,7 +152,6 @@ public class IntroUI : MonoBehaviour
             _introFinishedEventSent = true;
             OnIntroUIFinished?.Invoke();
         }
-
         _bootSequenceCoroutine = null;
     }
 
@@ -338,5 +345,21 @@ public class IntroUI : MonoBehaviour
         _fadeTween = null;
         HideAllVisuals();
         SetFadeAlpha(1f);
+    }
+
+    public void ActiveSkipButton(bool active)
+    {   
+        if (_skipButton != null)
+        {
+            _skipButton.gameObject.SetActive(active);
+        }
+    }
+
+    public void ActiveHud(bool active) 
+    { 
+        if (_hudCanvas != null)
+        {
+            _hudCanvas.SetActive(active);
+        }
     }
 }
